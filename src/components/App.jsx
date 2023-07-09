@@ -13,7 +13,7 @@ export default function App(params) {
   const [status, setStatus] = useState('idle');
 
   const handleSearchRequest = request => {
-    // setRequest(request);
+    setRequest(request);
   };
 
   const handlePageChange = () => {
