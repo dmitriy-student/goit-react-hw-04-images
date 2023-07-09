@@ -1,84 +1,82 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import css from './ImageGallery.module.css';
 import Modal from '../Modal/Modal';
 import Message from '../Message/Message';
 
-export default class ImageGallery extends Component {
-  state = {
-    images: [],
-    showModal: false,
-    total: null,
-    largeImageURL: '',
-  };
+export default function ImageGallery({ request, page, HandleStatusChange }) {
+  const [images, setImages] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [total, setTotal] = useState(null);
+  const [largeImageUrl, setLargeImageUrl] = useState('');
+  const [error, setError] = useState(null);
+  const [firstRender, setFirstRender] = useState(true);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      prevProps.request !== this.props.request ||
-      prevProps.page !== this.props.page
-    ) {
-      this.setState({ images: [], total: null });
-      this.props.HandleStatusChange('pending');
-
-      fetch(
-        `https://pixabay.com/api/?q=${this.props.request}&page=${this.props.page}&key=36188192-df3cf63ec6f6149d9f5656270&image_type=photo&orientation=horizontal&per_page=12`
-      )
-        .then(res => {
-          if (res.ok) {
-            return res.json();
-          }
-          return Promise.reject(new Error('Ooops...'));
-        })
-        .then(images =>
-          this.setState({ images: images.hits, total: images.total })
-        )
-        .catch(error => this.setState({ error }))
-        .finally(this.props.HandleStatusChange('resolve'));
+  useEffect(() => {
+    if (firstRender) {
+      setFirstRender(false);
+      return;
     }
-  }
 
-  onOpenModal = largeImageURL => {
-    this.setState({ showModal: true, largeImageURL });
+    setImages([]);
+    setTotal(null);
+    HandleStatusChange('pending');
+
+    fetch(
+      `https://pixabay.com/api/?q=${request}&page=${page}&key=36188192-df3cf63ec6f6149d9f5656270&image_type=photo&orientation=horizontal&per_page=12`
+    )
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(new Error('Ooops...'));
+      })
+      .then(images => setImages(images.hits), setTotal(images.total))
+      .catch(error => setError(error))
+      .finally(() => HandleStatusChange('resolve'));
+  }, [request, page]);
+
+  const onOpenModal = largeImageURL => {
+    setShowModal(true);
+    setLargeImageUrl(largeImageURL);
   };
 
-  handleChangeStateModal = () => {};
+  const handleChangeStateModal = () => {};
 
-  closeModalonESC = evt => {
+  const closeModalonESC = evt => {
     if (evt.code === 'Escape') {
-      this.setState({ showModal: false });
+      setShowModal(false);
     }
   };
 
-  closeModalonOverlay = evt => {
+  const closeModalonOverlay = evt => {
     if (evt.target === evt.currentTarget) {
-      this.setState({ showModal: false });
+      setShowModal(false);
     }
   };
 
-  render() {
-    return (
-      <>
-        {this.state.total === 0 && <Message request={this.props.request} />}
-        <ul className={css.ImageGallery}>
-          {this.state.images.map(image => (
-            <ImageGalleryItem
-              key={image.id}
-              imageUrl={image.webformatURL}
-              tags={image.tags}
-              largeImageURL={image.largeImageURL}
-              modalOpen={this.onOpenModal}
-            />
-          ))}
-        </ul>
-        {this.state.showModal && (
-          <Modal
-            closeModal={this.closeModalonOverlay}
-            closeModalonESC={this.closeModalonESC}
-            largeImageURL={this.state.largeImageURL}
+  return (
+    <>
+      {total === 0 && <Message request={request} />}
+      <ul className={css.ImageGallery}>
+        {images.map(image => (
+          <ImageGalleryItem
+            key={image.id}
+            imageUrl={image.webformatURL}
+            tags={image.tags}
+            largeImageURL={image.largeImageURL}
+            modalOpen={onOpenModal}
           />
-        )}
-      </>
-    );
-  }
+        ))}
+      </ul>
+      {showModal && (
+        <Modal
+          closeModal={closeModalonOverlay}
+          closeModalonESC={closeModalonESC}
+          largeImageURL={largeImageUrl}
+        />
+      )}
+    </>
+  );
 }

@@ -1,6 +1,6 @@
 import { Circles } from 'react-loader-spinner';
 
-export const Loader = () => {
+export function Loader(params) {
   return (
     <Circles
       height="80"
@@ -12,4 +12,4 @@ export const Loader = () => {
       visible={true}
     />
   );
-};
+}

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 
 import css from './App.module.css';
 
@@ -7,39 +7,33 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import Searchbar from './Searchbar/SearchBar';
 
-export default class App extends Component {
-  state = {
-    request: '',
-    page: 1,
-    status: 'idle',
+export default function App(params) {
+  const [request, setRequest] = useState('');
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('idle');
+
+  const handleSearchRequest = request => {
+    setRequest(request);
   };
 
-  handleSearchRequest = request => {
-    this.setState({ request });
+  const handlePageChange = () => {
+    setPage(per => per + 1);
   };
 
-  handlePageChange = () => {
-    this.setState({ page: this.state.page + 1 });
+  const HandleStatusChange = newStatus => {
+    setStatus(newStatus);
   };
 
-  HandleStatusChange = newStatus => {
-    this.setState({ status: newStatus });
-  };
-
-  render() {
-    return (
-      <div className={css.App}>
-        <Searchbar handleSearchRequest={this.handleSearchRequest} />
-        <ImageGallery
-          HandleStatusChange={this.HandleStatusChange}
-          request={this.state.request}
-          page={this.state.page}
-        />
-        {this.state.status === 'pending' && <Loader />}
-        {this.state.status === 'resolve' && (
-          <Button handlePageChange={this.handlePageChange} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className={css.App}>
+      <Searchbar handleSearchRequest={handleSearchRequest} />
+      <ImageGallery
+        HandleStatusChange={HandleStatusChange}
+        request={request}
+        page={page}
+      />
+      {status === 'pending' && <Loader />}
+      {status === 'resolve' && <Button handlePageChange={handlePageChange} />}
+    </div>
+  );
 }

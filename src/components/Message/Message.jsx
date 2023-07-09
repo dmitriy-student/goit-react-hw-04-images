@@ -1,7 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-export default class Message extends Component {
-  render() {
-    return <h1>No results found for {this.props.request}</h1>;
-  }
+export default function Message({ request }) {
+  return <h1>No results found for {request}</h1>;
 }
