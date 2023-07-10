@@ -10,7 +10,7 @@ export default function ImageGallery({ request, page, HandleStatusChange }) {
   const [showModal, setShowModal] = useState(false);
   const [total, setTotal] = useState(null);
   const [largeImageUrl, setLargeImageUrl] = useState('');
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [firstRender, setFirstRender] = useState(true);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function ImageGallery({ request, page, HandleStatusChange }) {
         return Promise.reject(new Error('Ooops...'));
       })
       .then(images => setImages(images.hits), setTotal(images.total))
-      .catch(error => setError(error))
+      .catch(error => console.log('error :>> ', error))
       .finally(() => HandleStatusChange('resolve'));
   }, [request, page]);
 
