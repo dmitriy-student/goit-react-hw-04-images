@@ -8,7 +8,7 @@ export default function Modal({ closeModalonESC, closeModal, largeImageURL }) {
     return () => {
       window.removeEventListener('keydown', closeModalonESC);
     };
-  }, []);
+  }, [closeModalonESC]);
 
   return (
     <div className={css.Overlay} onClick={closeModal}>
