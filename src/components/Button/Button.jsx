@@ -1,4 +1,3 @@
-import React, { Component } from 'react';
 import css from './Button.module.css';
 
 export default function Button({ handlePageChange }) {
