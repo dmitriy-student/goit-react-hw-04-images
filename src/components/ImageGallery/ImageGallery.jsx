@@ -42,7 +42,7 @@ export default function ImageGallery({ request, page, HandleStatusChange }) {
     setLargeImageUrl(largeImageURL);
   };
 
-  const handleChangeStateModal = () => {};
+  // const handleChangeStateModal = () => {};
 
   const closeModalonESC = evt => {
     if (evt.code === 'Escape') {
