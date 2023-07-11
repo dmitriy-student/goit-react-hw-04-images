@@ -2,6 +2,7 @@ import { useReducer, useState } from 'react';
 
 import css from './App.module.css';
 
+import { fetchImages } from 'services/api';
 import Button from './Button/Button';
 import ImageGallery from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
@@ -20,22 +21,22 @@ export default function App(params) {
   const [images, setImages] = useState([]);
   const [total, setTotal] = useState(null);
 
-  const handleSearchRequest = request => {
+  const handleSearchRequest = async request => {
     setRequest(request);
-    HandleStatusChange('pending');
+    setStatus('pending');
 
-    fetch(
-      `https://pixabay.com/api/?q=${request}&page=${page}&key=36188192-df3cf63ec6f6149d9f5656270&image_type=photo&orientation=horizontal&per_page=12`
-    )
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(new Error('Ooops...'));
-      })
-      .then(images => setImages(images.hits), setTotal(images.total))
-      .catch(error => console.log('error :>> ', error))
-      .finally(() => HandleStatusChange('resolve'));
+    try {
+      const images = await fetchImages(request, page);
+      if (page === 1) {
+        setImages(images.hits);
+      } else {
+        setImages(prevState => [...prevState, ...images.hits]);
+      }
+      setTotal(images.total);
+      setStatus('resolve');
+    } catch (error) {
+      setStatus('rejected');
+    }
   };
 
   const handlePageChange = () => {
@@ -43,19 +44,10 @@ export default function App(params) {
     handleSearchRequest(request);
   };
 
-  const HandleStatusChange = newStatus => {
-    setStatus(newStatus);
-  };
-
   return (
     <div className={css.App}>
       <Searchbar handleSearchRequest={handleSearchRequest} />
-      <ImageGallery
-        HandleStatusChange={HandleStatusChange}
-        request={request}
-        images={images}
-        total={total}
-      />
+      <ImageGallery request={request} images={images} total={total} />
       {status === 'pending' && <Loader />}
       {status === 'resolve' && <Button handlePageChange={handlePageChange} />}
     </div>
